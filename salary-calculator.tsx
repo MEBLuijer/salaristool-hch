@@ -16,7 +16,7 @@ export default function SalaryCalculator() {
 
   useEffect(() => {
     if (carType === "EV") {
-      setLeaseAmount([700])
+      setLeaseAmount([650])
     } else {
       setLeaseAmount([600])
     }
@@ -62,8 +62,8 @@ export default function SalaryCalculator() {
       return 600 // Standaard €600 als geen lease (was 300)
     } else {
       if (carType === "EV") {
-        const maxLease = 1000
-        return maxLease - leaseAmount[0] // EV: €1000 - gekozen bedrag
+        const maxLease = 950
+        return maxLease - leaseAmount[0] // EV: €950 - gekozen bedrag
       } else {
         const maxLease = 900
         return maxLease - leaseAmount[0] // ICE: €900 - gekozen bedrag
@@ -162,6 +162,11 @@ export default function SalaryCalculator() {
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
 `
+
+  // Bepaal min/max en geforceerde waarde voor de slider
+  const minLease = carType === "EV" ? 650 : 600;
+  const maxLease = carType === "EV" ? 950 : 900;
+  const leaseValue = Math.max(minLease, Math.min(leaseAmount[0], maxLease));
 
   return (
     <div className="min-h-screen bg-white py-8">
@@ -285,23 +290,28 @@ export default function SalaryCalculator() {
                 <div>
                   <label className="block text-sm font-medium text-hch-gray mb-2 flex items-center">
                     <Euro className="h-4 w-4 mr-2 text-hch-teal" />
-                    Lease bedrag per maand: €{leaseAmount[0]}
+                    Lease bedrag per maand: €{leaseValue}
                   </label>
                   <input
                     type="range"
-                    min={carType === "EV" ? "700" : "600"}
-                    max={carType === "EV" ? "1000" : "900"}
+                    min={minLease}
+                    max={maxLease}
                     step="1"
-                    value={leaseAmount[0]}
-                    onChange={(e) => setLeaseAmount([Number(e.target.value)])}
+                    value={leaseValue}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        setLeaseAmount([val]);
+                      }
+                    }}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                     style={{
-                      background: `linear-gradient(to right, #4ECDC4 0%, #4ECDC4 ${((leaseAmount[0] - (carType === "EV" ? 700 : 600)) / (carType === "EV" ? 300 : 300)) * 100}%, #e5e7eb ${((leaseAmount[0] - (carType === "EV" ? 700 : 600)) / (carType === "EV" ? 300 : 300)) * 100}%, #e5e7eb 100%)`,
+                      background: `linear-gradient(to right, #4ECDC4 0%, #4ECDC4 ${((leaseValue - minLease) / (maxLease - minLease)) * 100}%, #e5e7eb ${((leaseValue - minLease) / (maxLease - minLease)) * 100}%, #e5e7eb 100%)`,
                     }}
                   />
                   <div className="flex justify-between text-xs text-hch-gray-light mt-1">
-                    <span>€{carType === "EV" ? "700" : "600"}</span>
-                    <span>€{carType === "EV" ? "1000" : "900"}</span>
+                    <span>€{minLease}</span>
+                    <span>€{maxLease}</span>
                   </div>
                 </div>
 
@@ -331,7 +341,7 @@ export default function SalaryCalculator() {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-sm text-hch-gray-light">Budget max:</span>
-                      <span className="text-sm font-medium text-hch-gray">€{carType === "EV" ? "1000" : "900"}</span>
+                      <span className="text-sm font-medium text-hch-gray">€{carType === "EV" ? "950" : "900"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-hch-gray-light">Voordeel:</span>
@@ -369,7 +379,10 @@ export default function SalaryCalculator() {
               <div className="bg-hch-teal p-3 rounded-lg mr-4">
                 <Calendar className="h-6 w-6 text-white" />
               </div>
-              <h2 className="text-lg font-semibold text-hch-gray">Vrije Dagen</h2>
+              <div>
+                <h2 className="text-lg font-semibold text-hch-gray">Vrije Dagen</h2>
+                <p className="text-xs italic text-hch-gray-light">Je hebt 5 weken standaard en kunt tot 2 weken bijkopen.</p>
+              </div>
             </div>
 
             <div className="flex items-center mb-6">
@@ -507,12 +520,12 @@ export default function SalaryCalculator() {
               </div>
 
               <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-sm text-hch-gray">Internetvergoeding</span>
+                <span className="text-sm text-hch-gray">Internetvergoeding (netto)</span>
                 <span className="font-medium text-sm text-green-600">+€45.00</span>
               </div>
 
               <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-sm text-hch-gray">Thuiswerkvergoeding</span>
+                <span className="text-sm text-hch-gray">Thuiswerkvergoeding (netto)</span>
                 <span className="font-medium text-sm text-green-600">+€15.00</span>
               </div>
 
@@ -525,12 +538,7 @@ export default function SalaryCalculator() {
             </div>
 
             {/* Extra info */}
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-xs text-blue-700 flex items-center">
-                <AlertCircle className="h-3 w-3 mr-2" />
-                Berekening gebaseerd op Nederlandse loonheffingstabel 2025
-              </p>
-            </div>
+            {/* Verwijderd: Berekening gebaseerd op Nederlandse loonheffingstabel 2025 */}
           </div>
         </div>
       </div>
